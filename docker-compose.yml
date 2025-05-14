@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build:
+      context: ./eureka-server  # Path to the folder containing the Dockerfile for Eureka Server
+      dockerfile: Dockerfile  # Default Dockerfile name
+    container_name: eureka-server
+    ports:
+      - "8762:8762"  # Map port 8762 on the container to port 8762 on the host
+    networks:
+      - mynetwork
+
+  user-service:
+    build:
+      context: ./user-service  # Path to the folder containing the Dockerfile for User Service
+      dockerfile: Dockerfile  # Use the default Dockerfile name inside user-service folder
+    container_name: user-service
+    ports:
+      - "8065:8065"  # Map port 8065 on the container to port 8065 on the host
+    depends_on:
+      - eureka-server  # Ensure Eureka Server is up before User Service starts
+    environment:
+      - SPRING_APPLICATION_NAME=user-service
+      - SERVER_PORT=8065
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8762/eureka
+    volumes:
+      - user-service-logs:/app/logs
+    networks:
+      - mynetwork
+
+  client-service:
+    build:
+      context: ./client-service  # Path to the folder containing the Dockerfile for Client Service
+      dockerfile: Dockerfile  # Default Dockerfile name
+    container_name: client-service
+    ports:
+      - "8055:8055"  # Map port 8055 on the container to port 8055 on the host
+    depends_on:
+      - eureka-server  # Ensure Eureka Server is up before Client Service starts
+    environment:
+      - SPRING_APPLICATION_NAME=client-service
+      - SERVER_PORT=8055
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8762/eureka
+    volumes:
+      - client-service-logs:/app/logs
+    networks:
+      - mynetwork
+      
+volumes:
+  user-service-logs:
+  client-service-logs:
+
+networks:
+  mynetwork:
+    driver: bridge  # Create a bridge network for the services to communicate
