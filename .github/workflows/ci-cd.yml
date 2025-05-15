@@ -16,7 +16,7 @@ jobs:
 
       - name: 🐳 Build and run containers using Docker Compose
         run: |
-          docker-compose up --build -d
+          docker compose up --build -d
 
       - name: 📋 Check running containers
         run: docker ps
