@@ -27,6 +27,6 @@ public class UserController {
 	
 	@GetMapping("/user")
 	public String getUserData() {
-		return "Hi, Naveen.";
+		return "Hi, Naveen How are you";
 	}
 }
